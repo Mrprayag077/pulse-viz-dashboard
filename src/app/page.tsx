@@ -49,37 +49,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-10 bg-gradient-to-br from-gray-900 rounded-xl to-gray-800 text-white">
-      {/* <GitHubStats /> */}
-
-      {profile && (
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-100">
-            GitHub Profile Stats
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-              <h3 className="text-xl font-semibold text-gray-100">Followers</h3>
-              <p className="text-3xl text-blue-400">{profile.followers}</p>
-            </div>
-            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-              <h3 className="text-xl font-semibold text-gray-100">Following</h3>
-              <p className="text-3xl text-blue-400">{profile.following}</p>
-            </div>
-            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-              <h3 className="text-xl font-semibold text-gray-100">
-                Public Repos
-              </h3>
-              <p className="text-3xl text-blue-400">{profile.public_repos}</p>
-            </div>
-            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-              <h3 className="text-xl font-semibold text-gray-100">
-                Public Gists
-              </h3>
-              <p className="text-3xl text-blue-400">{profile.public_gists}</p>
-            </div>
-          </div>
-        </section>
-      )}
       <section className="mb-10">
         <div className="animate-fadeIn">
           <div className="mb-10 p-6 bg-gray-800/30 backdrop-blur-lg rounded-xl border border-gray-700/50">
@@ -111,6 +80,39 @@ export default function Home() {
               </span>
             </div>
           </div>
+
+          {profile && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-4 mb-10">
+                <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                  <h3 className="text-xl font-semibold text-gray-100">
+                    Followers
+                  </h3>
+                  <p className="text-3xl text-blue-400">{profile.followers}</p>
+                </div>
+                <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                  <h3 className="text-xl font-semibold text-gray-100">
+                    Following
+                  </h3>
+                  <p className="text-3xl text-blue-400">{profile.following}</p>
+                </div>
+                <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                  <h3 className="text-xl font-semibold text-gray-100">
+                    Public Repos
+                  </h3>
+                  <p className="text-3xl text-blue-400">
+                    {profile.public_repos}
+                  </p>
+                </div>
+                <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+                  <h3 className="text-xl font-semibold text-gray-100">
+                    Public Gists
+                  </h3>
+                  <p className="text-3xl text-blue-400">
+                    {profile.public_gists}
+                  </p>
+                </div>
+              </div>
+          )}
 
           {/* Projects */}
           <div className="mb-10">

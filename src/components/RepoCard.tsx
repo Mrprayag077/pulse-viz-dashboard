@@ -149,7 +149,10 @@ export const ProjectCard = ({ project }: any) => (
 export const AchievementsGrid = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     {achievements.map((achievement: any, index: number) => (
-      <div className="flex items-start gap-4 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+      <div
+        key={index}
+        className="flex items-start gap-4 p-4 bg-gray-800/50 rounded-xl border border-gray-700"
+      >
         <div className="p-2 bg-purple-500/20 rounded-lg flex-shrink-0">
           <Award className="text-purple-400" size={20} />
         </div>
