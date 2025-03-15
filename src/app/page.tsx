@@ -1,8 +1,18 @@
 "use client";
 
 import { RepoCard } from "@/components";
+import { AchievementsGrid, ProjectCard, projects } from "@/components/RepoCard";
 import { fetchCommits, fetchContributors, fetchRepoData } from "@/utils";
-import { Award, Code, ExternalLink, Folder } from "lucide-react";
+import {
+  Activity,
+  Award,
+  Code,
+  ExternalLink,
+  Folder,
+  GitBranch,
+  Star,
+  User,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -11,6 +21,15 @@ export default function Home() {
   const [contributors, setContributors] = useState([]);
 
   const repoName = "Mrprayag077/Mrprayag077";
+
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("https://api.github.com/users/Mrprayag077")
+      .then((response) => response.json())
+      .then((data) => setProfile(data))
+      .catch((error) => console.error("Error fetching profile data:", error));
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,10 +49,39 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-10 bg-gradient-to-br from-gray-900 rounded-xl to-gray-800 text-white">
-      {/*  */}
+      {/* <GitHubStats /> */}
+
+      {profile && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-100">
+            GitHub Profile Stats
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+              <h3 className="text-xl font-semibold text-gray-100">Followers</h3>
+              <p className="text-3xl text-blue-400">{profile.followers}</p>
+            </div>
+            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+              <h3 className="text-xl font-semibold text-gray-100">Following</h3>
+              <p className="text-3xl text-blue-400">{profile.following}</p>
+            </div>
+            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+              <h3 className="text-xl font-semibold text-gray-100">
+                Public Repos
+              </h3>
+              <p className="text-3xl text-blue-400">{profile.public_repos}</p>
+            </div>
+            <div className="p-6 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors duration-200">
+              <h3 className="text-xl font-semibold text-gray-100">
+                Public Gists
+              </h3>
+              <p className="text-3xl text-blue-400">{profile.public_gists}</p>
+            </div>
+          </div>
+        </section>
+      )}
       <section className="mb-10">
         <div className="animate-fadeIn">
-          {/* About Me */}
           <div className="mb-10 p-6 bg-gray-800/30 backdrop-blur-lg rounded-xl border border-gray-700/50">
             <h2 className="text-2xl font-semibold mb-4">About Me</h2>
             <p className="text-gray-300 mb-4">
@@ -90,7 +138,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-4">
-              <AchievementsGrid  />
+              <AchievementsGrid />
             </div>
           </div>
 
@@ -107,24 +155,20 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/*  */}
 
-      {/* Header */}
       <header className="mb-10">
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-          GitHub Repo Analytics
+          Example: GitHub Repo Analytics
         </h1>
         <p className="mt-2 text-gray-300">
           Insights into your repository activity
         </p>
       </header>
 
-      {/* Repo Card */}
       <div className="mb-10">
         <RepoCard repo={repo} />
       </div>
 
-      {/* Recent Commits */}
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4 text-gray-100">
           Recent Commits
@@ -144,7 +188,6 @@ export default function Home() {
         </ul>
       </section>
 
-      {/* Contributors */}
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4 text-gray-100">
           Contributors
@@ -176,97 +219,27 @@ export default function Home() {
   );
 }
 
-const projects = [
-  {
-    name: "E-Commerce Platform",
-    description:
-      "Built a full-stack e-commerce solution with React, Node.js and MongoDB",
-    technologies: ["React", "Node.js", "Express", "MongoDB", "Redux"],
-    link: "https://github.com/username/ecommerce",
-  },
-  {
-    name: "AI Content Generator",
-    description:
-      "A machine learning-powered tool for generating marketing content",
-    technologies: ["Python", "TensorFlow", "Flask", "AWS"],
-    link: "https://github.com/username/ai-content-generator",
-  },
-  {
-    name: "Finance Dashboard",
-    description: "Interactive financial data visualization dashboard",
-    technologies: ["Next.js", "TypeScript", "D3.js", "Tailwind CSS"],
-    link: "https://github.com/username/finance-dashboard",
-  },
-];
-
-const achievements = [
-  {
-    title: "Open Source Contributor",
-    description: "Top 10 contributor to React-Query with 12+ merged PRs",
-  },
-  {
-    title: "Hackathon Winner",
-    description:
-      "First place at DevFest 2023 - Built an AI-powered accessibility tool",
-  },
-  {
-    title: "AWS Certified Developer",
-    description:
-      "Associate level certification with specialization in serverless architecture",
-  },
-];
-
-// Project card component
-const ProjectCard = ({ project }: any) => (
-  <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-xl shadow-lg hover:shadow-blue-900/20 transition-all duration-300 border border-gray-800 hover:border-blue-500/30 group">
-    <div className="flex justify-between items-start mb-4">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-blue-500/20 rounded-lg">
-          <Folder className="text-blue-400" size={20} />
-        </div>
-        <h3 className="font-semibold text-lg text-white group-hover:text-blue-400 transition-colors">
-          {project.name}
-        </h3>
-      </div>
-      <a
-        href={project.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-gray-400 hover:text-blue-400 transition-colors"
-      >
-        <ExternalLink size={18} />
-      </a>
+const GitHubStats = () => (
+  <section className="mb-10">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <StatCard icon={<User size={24} />} label="Followers" value="120" />
+      <StatCard
+        icon={<GitBranch size={24} />}
+        label="Repositories"
+        value="35"
+      />
+      <StatCard icon={<Activity size={24} />} label="Commits" value="1.2k" />
+      <StatCard icon={<Star size={24} />} label="Stars" value="450" />
     </div>
-    <p className="text-gray-400 text-sm mb-4">{project.description}</p>
-    <div className="flex flex-wrap gap-2">
-      {project.technologies.map((tech: any, i: any) => (
-        <span
-          key={i}
-          className="text-xs py-1 px-2 bg-gray-700/70 rounded-full text-gray-300"
-        >
-          {tech}
-        </span>
-      ))}
-    </div>
-  </div>
+  </section>
 );
 
-const AchievementCard = ({ achievement }: any) => (
-  <div className="flex items-start gap-4 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
-    <div className="p-2 bg-purple-500/20 rounded-lg flex-shrink-0">
-      <Award className="text-purple-400" size={20} />
-    </div>
+const StatCard = ({ icon, label, value }: any) => (
+  <div className="p-6 bg-gray-800/50 rounded-xl flex items-center gap-4">
+    <div className="text-blue-400">{icon}</div>
     <div>
-      <h3 className="font-medium text-white">{achievement.title}</h3>
-      <p className="text-gray-400 text-sm mt-1">{achievement.description}</p>
+      <h4 className="text-white text-lg font-semibold">{value}</h4>
+      <p className="text-gray-400 text-sm">{label}</p>
     </div>
-  </div>
-);
-
-const AchievementsGrid = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    {achievements.map((achievement: any, index: number) => (
-      <AchievementCard key={index} achievement={achievement} />
-    ))}
   </div>
 );
