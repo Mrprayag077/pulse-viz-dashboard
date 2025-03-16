@@ -164,8 +164,8 @@ const NewsFeed: React.FC = () => {
         )}
 
         {!loading && articles.length === 0 && (
-          <div className="text-center py-12">
-            <Newspaper className="text-gray-500 w-5 h-6" />
+          <div className="flex flex-col justify-center items-center text-center py-12">
+            <Newspaper className="text-gray-500 w-8 h-8" />
             <p className="mt-4 text-gray-600">
               No articles found. Try another category.
             </p>
