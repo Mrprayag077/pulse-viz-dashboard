@@ -13,9 +13,9 @@ const Sidebar = () => {
 
   const menuItems = [
     { label: "GitHub", path: "/", icon: <Github size={20} /> },
-    { label: "Weather", path: "/weather", icon: <Cloud size={20} /> },
-    { label: "Finance", path: "/finance", icon: <BarChart2 size={20} /> },
     { label: "News", path: "/news", icon: <Newspaper size={20} /> },
+    { label: "Finance", path: "/finance", icon: <BarChart2 size={20} /> },
+    { label: "Weather", path: "/weather", icon: <Cloud size={20} /> },
   ];
 
   return (
