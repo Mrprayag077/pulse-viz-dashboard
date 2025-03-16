@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "@/components/news/Modal";
 import { Calendar, ChevronDown, LoaderCircle, Newspaper } from "lucide-react";
-import { Loading } from "@/components";
+import { Loading, NewsData } from "@/components";
 
 // Define TypeScript interfaces
 interface Source {
@@ -37,6 +37,10 @@ const NewsFeed: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
+  useEffect(() => {
+    console.log(articles);
+  }, [articles]);
+
   const categories: string[] = [
     "technology",
     "sports",
@@ -47,10 +51,16 @@ const NewsFeed: React.FC = () => {
 
   const fetchNews = async (): Promise<void> => {
     try {
-      const response = await axios.get<NewsApiResponse>(
-        `https://newsapi.org/v2/everything?q=${category}&pageSize=10&page=${page}&sortBy=popularity&apiKey=7515284b44a1404a9a0ff5de260b0f02`
+      // const response = await axios.get<NewsApiResponse>(
+      // `https://newsapi.org/v2/everything?q=${category}&pageSize=10&page=${page}&sortBy=popularity&apiKey=7515284b44a1404a9a0ff5de260b0f02`
+      // );
+      // setArticles((prev) => [...prev, ...response.data.articles]);
+
+      // TODO: doesnt support on deployed version so mock data
+      const ArticleData = NewsData.filter(
+        (item) => item.source.id === category
       );
-      setArticles((prev) => [...prev, ...response.data.articles]);
+      setArticles(ArticleData);
       setLoading(false);
     } catch (err) {
       setError("Failed to fetch news. Please try again later.");
