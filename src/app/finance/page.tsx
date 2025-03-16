@@ -73,13 +73,111 @@ interface MetricCardProps {
 }
 
 const FinanceDashboard: React.FC = () => {
-  const [symbol, setSymbol] = useState<string>("AAPL");
-  const [stockData, setStockData] = useState<StockData[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [timeRange, setTimeRange] = useState<string>("1month");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
+  
+  
+  
+
+   const [symbol, setSymbol] = useState<string>("AAPL");
+   const [stockData, setStockData] = useState<any[]>([]);
+   const [timeRange, setTimeRange] = useState<string>("1month");
+   const [loading, setLoading] = useState<boolean>(false);
+   const [error, setError] = useState<string>("");
+
+   const API_KEY = "H2VPF6TJRCBJIKPO";
+
+   const timeIntervals: { [key: string]: string } = {
+     "1day": "5min",
+     "1week": "60min",
+     "1month": "daily",
+     "1year": "weekly",
+   };
+
+   const mockData = [
+     {
+       date: "2024-03-01",
+       open: "150",
+       high: "155",
+       low: "148",
+       close: "152",
+       volume: "1000000",
+     },
+     {
+       date: "2024-03-02",
+       open: "152",
+       high: "158",
+       low: "150",
+       close: "157",
+       volume: "1100000",
+     },
+     {
+       date: "2024-03-03",
+       open: "157",
+       high: "160",
+       low: "155",
+       close: "159",
+       volume: "1200000",
+     },
+   ];
+
+   const fetchStockData = async () => {
+     try {
+       setLoading(true);
+       setError("");
+
+       const apiFunction =
+         timeRange === "1day"
+           ? "TIME_SERIES_INTRADAY"
+           : timeRange === "1week"
+           ? "TIME_SERIES_INTRADAY"
+           : timeRange === "1month"
+           ? "TIME_SERIES_DAILY"
+           : "TIME_SERIES_WEEKLY";
+
+       const interval = timeIntervals[timeRange];
+
+       const response = await axios.get(
+         `https://www.alphavantage.co/query?function=${apiFunction}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`
+       );
+
+       if (response.data["Error Message"] || response.data["Information"]) {
+         throw new Error("API limit reached or invalid request.");
+       }
+
+       const timeSeriesKey = Object.keys(response.data).find((key) =>
+         key.includes("Time Series")
+       )!;
+
+       const timeSeries = response.data[timeSeriesKey];
+       if (!timeSeries) {
+         throw new Error("No time series data found");
+       }
+
+       const data = Object.entries(timeSeries).map(([date, values]: any) => ({
+         date,
+         open: values["1. open"] || values["open"],
+         high: values["2. high"] || values["high"],
+         low: values["3. low"] || values["low"],
+         close: values["4. close"] || values["close"],
+         volume: values["5. volume"] || values["volume"],
+       }));
+
+       setStockData(data);
+     } catch (err) {
+       const error = err as AxiosError | Error;
+       console.error("Fetching error:", error.message);
+       setError("Failed to fetch stock data. Using mock data.");
+       setStockData(mockData);
+     } finally {
+       setLoading(false);
+     }
+   };
+
+   useEffect(() => {
+     if (symbol) fetchStockData();
+   }, [symbol, timeRange]);
+
+   const [searchQuery, setSearchQuery] = useState<string>("");
+   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [metrics, setMetrics] = useState<{
     currentPrice?: number;
     high?: number;
@@ -99,68 +197,6 @@ const FinanceDashboard: React.FC = () => {
 
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const API_KEY = "H2VPF6TJRCBJIKPO";
-
-  const timeIntervals: { [key: string]: string } = {
-    "1day": "5min",
-    "1week": "60min",
-    "1month": "daily",
-    "1year": "weekly",
-  };
-
-const fetchStockData = async () => {
-  try {
-    setLoading(true);
-    setError("");
-
-    // Determine API function based on time range
-    const apiFunction =
-      timeRange === "1day"
-        ? "TIME_SERIES_INTRADAY"
-        : timeRange === "1week"
-        ? "TIME_SERIES_INTRADAY"
-        : timeRange === "1month"
-        ? "TIME_SERIES_DAILY"
-        : "TIME_SERIES_WEEKLY";
-
-    const interval = timeIntervals[timeRange];
-
-    const response = await axios.get(
-      `https://www.alphavantage.co/query?function=${apiFunction}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`
-    );
-
-    if (response.data["Error Message"]) {
-      throw new Error(response.data["Error Message"]);
-    }
-
-    // Get the correct time series key based on API function
-    const timeSeriesKey = Object.keys(response.data).find((key) =>
-      key.includes("Time Series")
-    )!;
-    const timeSeries = response.data[timeSeriesKey];
-
-    if (!timeSeries) {
-      throw new Error("No time series data found");
-    }
-
-    const data = Object.entries(timeSeries).map(([date, values]: any) => ({
-      date,
-      open: values["1. open"] || values["open"],
-      high: values["2. high"] || values["high"],
-      low: values["3. low"] || values["low"],
-      close: values["4. close"] || values["close"],
-      volume: values["5. volume"] || values["volume"],
-    }));
-
-    setStockData(data);
-    calculateMetrics(data);
-  } catch (err) {
-    const error = err as AxiosError | Error;
-    setError(error.message || "Failed to fetch stock data");
-  } finally {
-    setLoading(false);
-  }
-};
 
   const calculateMetrics = (data: StockData[]) => {
     if (data.length < 2) return;
