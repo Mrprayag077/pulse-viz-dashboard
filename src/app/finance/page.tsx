@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -108,70 +108,59 @@ const FinanceDashboard: React.FC = () => {
     "1year": "weekly",
   };
 
-  const fetchStockData = async () => {
-    try {
-      setLoading(true);
-      const interval = timeIntervals[timeRange];
-      let url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=5min&apikey=${API_KEY}`;
+const fetchStockData = async () => {
+  try {
+    setLoading(true);
+    setError("");
 
-      if (timeRange === "1month") {
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${API_KEY}`;
-      } else if (timeRange === "1year") {
-        url = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${symbol}&apikey=${API_KEY}`;
-      }
+    // Determine API function based on time range
+    const apiFunction =
+      timeRange === "1day"
+        ? "TIME_SERIES_INTRADAY"
+        : timeRange === "1week"
+        ? "TIME_SERIES_INTRADAY"
+        : timeRange === "1month"
+        ? "TIME_SERIES_DAILY"
+        : "TIME_SERIES_WEEKLY";
 
-      const response = await axios.get(url);
+    const interval = timeIntervals[timeRange];
 
-      let timeSeries: any;
-      if (timeRange === "1day") {
-        timeSeries = response.data["Time Series (5min)"];
-      } else if (timeRange === "1week") {
-        timeSeries = response.data["Time Series (60min)"];
-      } else if (timeRange === "1month") {
-        timeSeries = response.data["Time Series (Daily)"];
-      } else if (timeRange === "1year") {
-        timeSeries = response.data["Weekly Time Series"];
-      }
+    const response = await axios.get(
+      `https://www.alphavantage.co/query?function=${apiFunction}&symbol=${symbol}&interval=${interval}&apikey=${API_KEY}`
+    );
 
-      if (!timeSeries) {
-        throw new Error("No data available");
-      }
-
-      const data = Object.entries(timeSeries)
-        .slice(0, timeRange === "1year" ? 52 : 30)
-        .map(([date, values]: [string, any]) => ({
-          date,
-          open: values["1. open"],
-          high: values["2. high"],
-          low: values["3. low"],
-          close: values["4. close"],
-          volume: values["5. volume"],
-        }))
-        .reverse();
-
-      setStockData(data);
-      calculateMetrics(data);
-
-      // Fetch company overview
-      const overviewResponse = await axios.get(
-        `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${API_KEY}`
-      );
-
-      if (overviewResponse.data) {
-        setCompanyInfo({
-          name: overviewResponse.data.Name,
-          sector: overviewResponse.data.Sector,
-          industry: overviewResponse.data.Industry,
-          description: overviewResponse.data.Description,
-        });
-      }
-    } catch (err) {
-      setError("Failed to fetch stock data");
-      console.error(err);
-    } finally {
-      setLoading(false);
+    if (response.data["Error Message"]) {
+      throw new Error(response.data["Error Message"]);
     }
-  };
+
+    // Get the correct time series key based on API function
+    const timeSeriesKey = Object.keys(response.data).find((key) =>
+      key.includes("Time Series")
+    )!;
+    const timeSeries = response.data[timeSeriesKey];
+
+    if (!timeSeries) {
+      throw new Error("No time series data found");
+    }
+
+    const data = Object.entries(timeSeries).map(([date, values]: any) => ({
+      date,
+      open: values["1. open"] || values["open"],
+      high: values["2. high"] || values["high"],
+      low: values["3. low"] || values["low"],
+      close: values["4. close"] || values["close"],
+      volume: values["5. volume"] || values["volume"],
+    }));
+
+    setStockData(data);
+    calculateMetrics(data);
+  } catch (err) {
+    const error = err as AxiosError | Error;
+    setError(error.message || "Failed to fetch stock data");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const calculateMetrics = (data: StockData[]) => {
     if (data.length < 2) return;
